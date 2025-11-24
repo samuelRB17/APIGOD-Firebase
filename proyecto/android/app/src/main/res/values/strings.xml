@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Firebase</string>
+    <string name="title_activity_main">Firebase</string>
+    <string name="package_name">com.actividadfirebase.app</string>
+    <string name="custom_url_scheme">com.actividadfirebase.app</string>
+</resources>
