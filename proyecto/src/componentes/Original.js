@@ -1,75 +1,41 @@
-import { db } from '../firebaseConfig.js';
-import { collection, addDoc } from 'firebase/firestore';
+export default async function Original() {
+    const url = "https://thronesapi.com/api/v2/Characters";
 
-export default function mostrarOriginal() { 
-let app = {
-nombreapp: "Nombre de la app",
-descripcion: "Aqui agregamos una descripción de 30 palabras",
-icono: "https://cdn-icons-png.flaticon.com/512/2909/2909765.png",
-integrantes: ["javier", "maria", "matt"],
-actividad: "Capacitor Firebase",
-url:
-"https://drive.google.com/file/d/1Kl97mmRESu2GWPztzK2XdMvNR68vMQ00/view?usp=drive_link"
-};
-// Contenedor principal
-const contenedor = document.getElementById("app");
-contenedor.innerHTML = "";
-// Crear formulario y salida
-const form = document.createElement("div");
-const resultado = document.createElement("pre");
-resultado.textContent = JSON.stringify(app, null, 2);
+    // contenedor principal donde se mostrará la info
+    const contenedor = document.getElementById("root");
+    contenedor.innerHTML = "<h2>Personajes de Game of Thrones</h2>";
 
-// Campos a editar
-const campos = [
-{ key: "nombreapp", label: "Nombre de la app" },
-{ key: "descripcion", label: "Descripción" },
-{ key: "icono", label: "URL del ícono" },
-{ key: "actividad", label: "Actividad" },
-{ key: "url", label: "URL del proyecto" },
-];
-// Crear inputs y etiquetas <p>
-campos.forEach(({ key, label }) => {
-const p = document.createElement("p");
-p.textContent = label;
-const input = document.createElement("input");
-input.placeholder = label;
-input.value = app[key];
-input.oninput = () => {
-app[key] = input.value;
-resultado.textContent = JSON.stringify(app, null, 2);
-};
-form.appendChild(p);
-form.appendChild(input);
-});
-// Campo especial: integrantes
-const pIntegrantes = document.createElement("p");
-pIntegrantes.textContent = "Integrantes (separados por coma):";
-const integrantesInput = document.createElement("input");
-integrantesInput.value = app.integrantes.join(", ");
-integrantesInput.placeholder = "Integrantes (separados por coma):";
-integrantesInput.oninput = () => {
-app.integrantes = integrantesInput.value.split(",").map(i =>
-i.trim());
-resultado.textContent = JSON.stringify(app, null, 2);
-};
-form.appendChild(pIntegrantes);
-form.appendChild(integrantesInput);
-// 🔘 Botón para guardar en Firebase
-const botonGuardar = document.createElement("button");
-botonGuardar.textContent = "Guardar en Firebase";
+    try {
+        const respuesta = await fetch(url);
+        const personajes = await respuesta.json();
 
-botonGuardar.onclick = async () => {
-try {
-await addDoc(collection(db, "proyectos"), app);
-alert("✅ Datos guardados correctamente en Firebase!");
-} catch (error) {
-console.error("Error al guardar en Firebase:", error);
-alert("❌ Ocurrió un error al guardar en Firebase.");
+        // crear lista de personajes
+        const lista = document.createElement("div");
+        lista.style.display = "grid";
+        lista.style.gridTemplateColumns = "repeat(auto-fill, minmax(150px, 1fr))";
+        lista.style.gap = "15px";
+
+        personajes.forEach(p => {
+            const card = document.createElement("div");
+            card.style.border = "1px solid #b2b42dff";
+            card.style.padding = "10px";
+            card.style.borderRadius = "8px";
+            card.style.textAlign = "center";
+            card.style.background = "#f9f9f9";
+
+            card.innerHTML = `
+                <img src="${p.imageUrl}" alt="${p.fullName}" style="width:100%; border-radius:8px;">
+                <h3 style="font-size:16px; margin:10px 0 5px;">${p.fullName}</h3>
+                <p style="margin:0; font-size:14px;">${p.title}</p>
+            `;
+
+            lista.appendChild(card);
+        });
+
+        contenedor.appendChild(lista);
+
+    } catch (error) {
+        contenedor.innerHTML = "<p>Error al cargar los personajes</p>";
+        console.error(error);
+    }
 }
-};
-form.appendChild(botonGuardar);
-// Agregar todo al contenedor
-contenedor.appendChild(form);
-contenedor.appendChild(resultado);
-}
-
